@@ -41,38 +41,6 @@ Texture::Texture(void* data, uint32_t withWidth, uint32_t withHeight, GLenum wit
 	height = withHeight;
 	format = withFormat;
 
-	if (width == 128 && height == 128) {
-		
-		std::fstream file("brom_abrar.mif", std::ofstream::out);
-
-		file <<
-			"-- 128x128 12bit image color values\n"
-			"\n"
-			"WIDTH = 12;\n"
-			"DEPTH = 16384;\n"
-			"ADDRESS_RADIX = UNS;\n"
-			"DATA_RADIX = UNS;\n"
-			"\n"
-			"CONTENT BEGIN\n";
-
-		uint32_t i = 0;
-		for (int32_t y = 127; y >= 0; y--) {
-			for (uint32_t x = 0; x < 128; x++) {
-				uint8_t* bytes = ((uint8_t*)data) + x * 4 + y * 512;
-				uint32_t color = 
-					((bytes[2] / 16) << 8) +
-					((bytes[1] / 16) << 4) +
-					((bytes[0] / 16) << 0);
-				file << i << " : " << color << ";\n";
-				i++;
-			}
-		}
-
-		file << "END;\n";
-
-		file.close();
-	}
-
 	glGenTextures(1, &textureId);
 
 	glActiveTexture(GL_TEXTURE0);
