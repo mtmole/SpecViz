@@ -1,0 +1,17 @@
+#version 140
+ 
+precision highp float;
+ 
+in  vec2 ex_UV; 
+
+out vec4 out_Color;
+
+uniform sampler2D colorMap;
+ 
+void main(void)
+{
+	out_Color = vec4(
+		texture(colorMap, ex_UV).xyz,
+		1.0
+	);
+}

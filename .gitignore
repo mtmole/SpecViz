@@ -1,0 +1,12 @@
+/Debug
+/*.suo
+/*.user
+/*.sdf
+/ipch
+/Data/egyptian_statue_ms/Thumbs.db
+/Data
+/FreeImage/Examples
+/FreeImage/Wrapper
+/glm/doc
+/Release
+/*.aps

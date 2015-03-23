@@ -1,0 +1,17 @@
+#version 140
+ 
+precision highp float;
+ 
+in  vec4 ex_Color;
+in  vec2 ex_UV; 
+in  vec3 ex_Normal;
+in  vec3 ex_EyeDirection;
+
+out vec4 out_Color;
+
+uniform vec3 lightDirection;
+ 
+void main(void)
+{
+	out_Color = ex_Color;
+}

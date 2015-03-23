@@ -1,0 +1,32 @@
+#version 140
+ 
+precision highp float;
+ 
+in  vec2 ex_UV; 
+in  vec3 ex_EyeDirection;
+
+out vec4 out_Color;
+
+uniform sampler2D normalMap;
+uniform sampler2D colorMap;
+uniform vec3 lightDirection;
+ 
+void main(void)
+{
+	// Phong shading
+	vec3 normal = texture(normalMap, ex_UV).xyz * 2.0 - 1.0;
+	float lightAmount = dot(normalize(normal), lightDirection);
+
+	// simple bounce
+	lightAmount = lightAmount < 0.0f ? lightAmount * -0.2 : lightAmount;
+
+	// spec
+	float spec = pow(max(dot(ex_EyeDirection, reflect(normal, lightDirection)), 0.0), 16.0) * 0.3;
+
+	vec3 color = texture(colorMap, ex_UV).zyx;
+			
+	out_Color = vec4(
+        color * (lightAmount * 0.8 + 0.2) + spec,
+		1.0
+	);
+}

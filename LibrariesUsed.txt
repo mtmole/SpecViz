@@ -1,0 +1,5 @@
+GLEW
+GLM
+FreeImage
+
+Polynomial Texture Maps
