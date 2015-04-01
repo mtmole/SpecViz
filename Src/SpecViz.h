@@ -39,6 +39,7 @@ Viewer* CreateCreateProjViewer(const char* textureFile, const char* modelFile);
 Viewer* CreateNormalMapViewer(const char* normalMap, const char* colorMap);
 Viewer* CreateProjViewer(const char* projFile);
 Viewer* CreateMultiProjViewer(std::vector<const char*>& filenames);
+void CreateDepthField(const char* projFile);
 
 #define Log(...) { char buff[512]; sprintf_s(buff, 512, __VA_ARGS__); OutputDebug(buff); }
 

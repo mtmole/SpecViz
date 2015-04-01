@@ -57,6 +57,8 @@ ProjViewer::ProjViewer(const char* filename) {
 		ref++;
 	}
 
+	f.close();
+
 	rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	center = glm::vec3(0.0f, 0.0f, 0.0f);
 

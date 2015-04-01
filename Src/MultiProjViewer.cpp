@@ -87,8 +87,11 @@ MultiProjViewer::MultiProjViewer(std::vector<const char*>& filenames) {
 
 	model = new PlyModel(modelFile);
 
+	char depthTexture[512];
 	for (uint32_t i = 0; i < filenames.size(); i++) {
-		projTexture[i] = Texture::CreateFromFile(textureFile[i], GL_RGBA8);
+		strcpy(depthTexture, filenames[i]);
+		strcat(depthTexture, ".edgedist.png");
+		projTexture[i] = Texture::CreateFromFileCombined(textureFile[i], depthTexture);
 	}
 
 	numTextures = filenames.size();

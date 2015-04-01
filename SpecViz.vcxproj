@@ -48,7 +48,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\Src;.\glew\include;.\FreeImage\Dist</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -100,6 +100,7 @@
   <ItemGroup>
     <ClCompile Include="Src\Buffer.cpp" />
     <ClCompile Include="Src\CreateProjViewer.cpp" />
+    <ClCompile Include="Src\DepthField.cpp" />
     <ClCompile Include="Src\ModelViewer.cpp" />
     <ClCompile Include="Src\MultiProjViewer.cpp" />
     <ClCompile Include="Src\NormalMapViewer.cpp" />

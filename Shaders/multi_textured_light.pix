@@ -25,9 +25,18 @@ void main(void)
 	float spec = pow(max(dot(ex_EyeDirection, reflect(ex_Normal, lightDirection)), 0.0), 16.0) * 0.3;
 	
 	vec4 color = vec4(texture(colorMap[0], ex_UV[0].xy).xyz, ex_UV[0].z);
+	float curWeight = max(color.a - 0.1, 0.0) * ex_UV[0].z;
+	vec4 weightedColor = vec4(color.rgb * curWeight, curWeight);
 	for (int i = 1; i < NUM_SAMPLERS; i++) {
 		vec4 curColor = vec4(texture(colorMap[i], ex_UV[i].xy).xyz, ex_UV[i].z);
 		color = mix(color, curColor, step(color.w, curColor.w));
+		curWeight = max(curColor.a - 0.1, 0.0) * ex_UV[i].z;
+		weightedColor.rgb += curColor.rgb * curWeight;
+		weightedColor.a += curWeight;
+	}
+
+	if (weightedColor.a != 0.0) {
+		color.rgb = weightedColor.rgb / weightedColor.a;
 	}
 
 	lightAmount = 1.0;

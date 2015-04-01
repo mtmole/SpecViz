@@ -112,6 +112,17 @@ public:
 		return (float) width / height;
 	}
 
+	uint32_t GetWidth() const {
+		return width;
+	}
+	
+	uint32_t GetHeight() const {
+		return height;
+	}
+
 	void Bind(uint32_t samplerId);
 	static Texture* CreateFromFile(const char* filePath, GLenum desiredFormat);
+	static Texture* CreateFromFileCombined(const char* rgbPath, const char* alphaPath);
+	static void SavePNG(const char* filename, uint32_t width, uint32_t height, uint8_t* colors,
+		uint32_t destWidth = 0, uint32_t destHeight = 0);
 };

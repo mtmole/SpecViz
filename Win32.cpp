@@ -159,17 +159,17 @@ bool OpenFile(char* intoBuffer, char* fileFilter, bool isSave = false) {
 	char dir[512];
 	GetCurrentDirectory(512, dir);
 
-    OPENFILENAME ofn ;
+	OPENFILENAME ofn ;
 
-    ZeroMemory(&ofn, sizeof(ofn));
+	ZeroMemory(&ofn, sizeof(ofn));
 
-    ofn.lStructSize = sizeof(ofn);
+	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = gWnd;
-    ofn.lpstrFile = intoBuffer;
-    ofn.lpstrFile[0] = '\0';
-    ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrFilter = fileFilter;
-    ofn.nFilterIndex = 0;
+	ofn.lpstrFile = intoBuffer;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrFilter = fileFilter;
+	ofn.nFilterIndex = 0;
 	ofn.lpstrInitialDir = dir;
 
 	if (isSave) {
@@ -180,16 +180,16 @@ bool OpenFile(char* intoBuffer, char* fileFilter, bool isSave = false) {
 	} else {
 		ofn.lpstrTitle = "Select file";
 		ofn.Flags = OFN_FILEMUSTEXIST | OFN_EXPLORER;
-	    GetOpenFileName(&ofn);
+		GetOpenFileName(&ofn);
 	}
 
 
 	// make sure the current directory stays the same so our relative path names still work
 	SetCurrentDirectory(dir);
 
-    if (strlen(intoBuffer) == 0) return false;
+	if (strlen(intoBuffer) == 0) return false;
 
-    return true;
+	return true;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -228,6 +228,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					if (OpenFile(projFile, "Projection Files\0*.prj\0", true)) {
 						currentViewer->Save(projFile);
 					}
+				}
+				break;
+			}
+			case ID_CREATEDEPTHFIELD:
+			{
+				char projFile[512];
+				if (OpenFile(projFile, "Projection Files\0*.prj\0")) {
+					CreateDepthField(projFile);
+					MessageBox(hWnd, "Depth Field created.", "Done", MB_OK);
 				}
 				break;
 			}
@@ -286,7 +295,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						if (projFiles.size() && strcmp(projFiles[projFiles.size()-1], projFile) == 0) {
 							i = 15;
 						} else {
-							projFiles.push_back(strdup(projFile));
+							projFiles.push_back(_strdup(projFile));
 						}
 						if (i == 15) {
 							currentViewer = CreateMultiProjViewer(projFiles);
