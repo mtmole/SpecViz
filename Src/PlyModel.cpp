@@ -5,6 +5,7 @@
 
 using namespace std;
 
+// struct represents a vertex used for PlyModels in both the loading process and how vertices stored in data for GPU
 struct PlyVertex {
 	glm::vec3 position;
 	glm::vec2 uv;
@@ -19,6 +20,7 @@ struct PlyVertex {
 	}
 };
 
+// verious PLY property types that represent various  OpenGL vertex attributes or their components
 enum PlyPropertyType {
 	PPT_X,
 	PPT_Y,
@@ -36,6 +38,7 @@ enum PlyPropertyType {
 	PPT_Unknown
 };
 
+// given a property name returns the type as determined by empirical evidence
 PlyPropertyType GetPropType(const char* withName) {
 	if (strlen(withName) == 1) {
 		switch (withName[0]) {
@@ -79,6 +82,7 @@ PlyPropertyType GetPropType(const char* withName) {
 	return PPT_Unknown;
 }
 
+// various supported ply data formats
 enum PlyPropertyFormat {
 	PPF_Float,
 	PPF_Int,
@@ -87,6 +91,7 @@ enum PlyPropertyFormat {
 	PPF_Unknown
 };
 
+// given the PLY model provided property format, returns our enum equivalent
 PlyPropertyFormat GetPropFormat(const char* withName) {
 	if (!strcmp(withName, "float") || !strcmp(withName, "float32"))
 		return PPF_Float;
@@ -106,6 +111,7 @@ struct PlyProperty {
 	PlyPropertyFormat format;
 };
 
+// swaps a value for BIG_ENDIAN <-> LITTLE_ENDIAN conversion purposes
 template<class T> 
 T byte_swap(T& withValue) {
 	assert(sizeof(T) == 4);

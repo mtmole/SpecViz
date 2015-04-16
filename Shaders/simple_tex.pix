@@ -10,6 +10,7 @@ uniform sampler2D colorMap;
  
 void main(void)
 {
+	// simply output result of texture lookup with provided UV
 	out_Color = vec4(
 		texture(colorMap, ex_UV).xyz,
 		1.0

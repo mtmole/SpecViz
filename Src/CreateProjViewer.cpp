@@ -4,8 +4,12 @@
 
 #include <fstream>
 
+// CreateProjected is the viewer currently used for creating projection matrix with a semi-transparent mesh
+// and the indicated image
+
 class CreateProjected : public Viewer {
 public:
+	// shaders and programs used for rendering projected mesh and background texture
 	PixelShader* modelPShader;
 	VertexShader* modelVShader;
 	ShaderProgram* modelProgram;
@@ -14,7 +18,10 @@ public:
 	VertexShader* textureVShader;
 	ShaderProgram* textureProgram;
 
+	// texture actually being projected on to
 	Texture* ontoTexture;
+
+	// projection matrix creation variables
 	bool rotate;
 	glm::vec3 rotation;
 	glm::vec3 center;
@@ -23,18 +30,22 @@ public:
 	glm::mat4 projMatrix;
 	glm::vec3 lightDirection;
 
+	// light and camera settings
 	float lightPitch;
 	float lightYaw;
 	float cameraDistance;
 	float baseCameraDistance;
 	float fieldOfView;
 
+	// model of mesh being projected
 	PlyModel* model;
 
+	// these VAOs and Buffers are for background image ( to remain true to aspect )
 	VAO* vao;
 	IndexBuffer* iBuffer;
 	VertexBuffer* vBuffer;
 
+	// texture and model path names
 	const char* texName;
 	const char* modelName;
 

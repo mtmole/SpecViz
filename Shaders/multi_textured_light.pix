@@ -24,6 +24,7 @@ void main(void)
 	// spec
 	float spec = pow(max(dot(ex_EyeDirection, reflect(ex_Normal, lightDirection)), 0.0), 16.0) * 0.3;
 	
+	// weight each color by depth field result and by vertex facing value determined in vertex shader
 	vec4 color = vec4(texture(colorMap[0], ex_UV[0].xy).xyz, ex_UV[0].z);
 	float curWeight = max(color.a - 0.1, 0.0) * ex_UV[0].z;
 	vec4 weightedColor = vec4(color.rgb * curWeight, curWeight);
@@ -35,10 +36,12 @@ void main(void)
 		weightedColor.a += curWeight;
 	}
 
+	// if any weighting was found, use weighting set up (otherwise it will be "best" result based on facing vector amounts)
 	if (weightedColor.a != 0.0) {
 		color.rgb = weightedColor.rgb / weightedColor.a;
 	}
 
+	// these are here to allow for additional lighting.. though with these settings it is compiled out
 	lightAmount = 1.0;
 	spec = 0.0;
 

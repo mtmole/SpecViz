@@ -1,5 +1,7 @@
 #include "SpecViz.h"
 
+// Standard OpenGL Vertex and Index Buffer creation
+
 VertexBuffer::VertexBuffer(void* data, uint32_t dataSize) {
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);

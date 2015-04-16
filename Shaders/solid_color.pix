@@ -13,5 +13,6 @@ uniform vec3 lightDirection;
  
 void main(void)
 {
+	// simply output a solid color
 	out_Color = ex_Color;
 }

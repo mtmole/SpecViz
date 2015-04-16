@@ -19,15 +19,23 @@ uniform vec3 eyePosition;
  
 void main(void)
 {
+	// determine scene position from data position and object matrix
 	vec4 scenePos = objMatrix * vec4(in_Position, 1.0);
+
+	// viewport position is scene position multiplied by view and projection matrices
 	gl_Position = projMatrix * (viewMatrix * scenePos);
-	ex_Color = in_Color;
+
+	// object normal is the vertex normal roated by object matrix to get normal in scene space
 	ex_Normal = (objMatrix * vec4(in_Normal, 0.0)).xyz;
 
+	ex_Color = in_Color;
+
+	// UV is a deprojected vector based on the view projection matrix provided with the texture representing texture local mesh space
 	vec4 uv = texMatrix * vec4(in_Position, 1.0);
 	uv.x = uv.x / uv.w;
 	uv.y /= uv.w;
 	ex_UV = uv.xy * 0.5 + 0.5;
 
+	// eye direction determined by taking scene space position and finding normalized difference with eye position
 	ex_EyeDirection = normalize(eyePosition - scenePos.xyz / scenePos.w);
 }

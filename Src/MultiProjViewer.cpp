@@ -4,6 +4,9 @@
 
 #include <fstream>
 
+// MultiProjViewer is the main viewer that allows for multiple projections on the 3D mesh simultaneously. Projections
+// should have been run through using CreateProjViewer, and then ideally had a Depth Field made for them
+
 #define MAX_TEXTURES 16
 
 class MultiProjViewer : public Viewer {
