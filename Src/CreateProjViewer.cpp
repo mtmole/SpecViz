@@ -66,6 +66,7 @@ Viewer* CreateCreateProjViewer(const char* texture, const char* model) {
 CreateProjected::CreateProjected(const char* textureFile, const char* modelFile) {
 	GLCHECK();
 
+	// set up defaults for transform
 	rotate = false;
 	rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	center = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -80,22 +81,33 @@ CreateProjected::CreateProjected(const char* textureFile, const char* modelFile)
 	glGetIntegerv(GL_MINOR_VERSION, &minor);
 	printf("GL %d.%d", major, minor);
 
+	// the model is rendered with a simple light and lit vertices but no texturing
 	modelPShader = new PixelShader("Shaders/simple_light.pix");
 	modelVShader = new VertexShader("Shaders/lit_vertex.vert");
 	modelProgram = new ShaderProgram(modelPShader, modelVShader);
 
+	// pass through shader for the background image
 	texturePShader = new PixelShader("Shaders/simple_tex.pix");
 	textureVShader = new VertexShader("Shaders/passthrough.vert");
 	textureProgram = new ShaderProgram(texturePShader, textureVShader);
 
+	// load up the texture from the given file name as full color
 	ontoTexture = Texture::CreateFromFile(textureFile, GL_RGBA8);
 
+	// load up the model to project onto from the given file name as a PLY model
 	model = new PlyModel(modelFile);
 	
+	// this is currently hard coded and has to be adjusted based on the image source
+	// TODO : grab field of view from image file info itself when available
+	//        I've noticed that the file metadata for this does not follow a standard format
+	//        however and varies by device source
 	fieldOfView = 20.0f;
+
+	// starting camera distance is a function of the model size and image field of view
 	baseCameraDistance = glm::length(model->GetScale()) / 1.404f * 90.0f / fieldOfView;
 	cameraDistance = baseCameraDistance;
 	
+	// create a basic quad vertex and index buffer for rendering the background image
 	float aspect = ontoTexture->GetAspect();
 	struct vPos {
 		float pos[3];
@@ -141,8 +153,8 @@ void CreateProjected::MainLoop(float deltaTime) {
 	textureProgram->Bind();
 	GLCHECK();
 
+	// maintain texture aspect by computing its necessary scale as a function of the viewport aspect
 	glm::vec2 scale(1.0f, 1.0f);
-
 	float texA = ontoTexture->GetAspect();
 	float viewA = GetAspectRatio();
 	if (texA > viewA) {
@@ -152,11 +164,13 @@ void CreateProjected::MainLoop(float deltaTime) {
 	}
 
 	GLCHECK();
+
+	// set the computed scale and point the colorMap to sampler 0
 	glUniform2fv(textureProgram->GetUniform("scale"), 1, &scale.x);
 	glUniform1i(textureProgram->GetUniform("colorMap"), 0);
 	GLCHECK();
 
-	// bind texture
+	// bind texture to sampler 0
 	ontoTexture->Bind(0);
 
 	// draw our quad
@@ -172,6 +186,7 @@ void CreateProjected::MainLoop(float deltaTime) {
 	
 	projMatrix = glm::infinitePerspective(fieldOfView * glm::pi<float>() / 180.0f, GetAspectRatio(), 0.01f);
 
+	// create our view matrix based on the current rotation, offset, and camera distance
 	glm::vec3 eyePosition = glm::vec3(cameraDistance, 0.0f, 0.0f);
 
 	objMatrix = glm::mat4x4();
@@ -187,10 +202,13 @@ void CreateProjected::MainLoop(float deltaTime) {
 	float pitchVar = 1.0f - sin(lightPitch);
 	lightDirection = glm::normalize(glm::vec3(cos(lightYaw) * pitchVar, sin(lightPitch), sin(lightYaw) * pitchVar));
 	
+	// we are rendering with alpha transparency so enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	GLCHECK();
+	
+	// set computed program matrices and alpha amount
 	glUniformMatrix4fv(modelProgram->GetUniform("objMatrix"), 1, GL_FALSE, &objMatrix[0][0]);
 	glUniformMatrix4fv(modelProgram->GetUniform("projMatrix"), 1, GL_FALSE, &projMatrix[0][0]);
 	glUniformMatrix4fv(modelProgram->GetUniform("viewMatrix"), 1, GL_FALSE, &viewMatrix[0][0]);
@@ -205,6 +223,7 @@ void CreateProjected::MainLoop(float deltaTime) {
 }
 
 void CreateProjected::NotifyKeyPress(const char* name) {
+	// deprecated (model used to auto rotate before we have manual control)
 	if (!strcmp(name, "space")) {
 		rotate = !rotate;
 		return;
@@ -212,15 +231,18 @@ void CreateProjected::NotifyKeyPress(const char* name) {
 }
 
 void CreateProjected::NotifyMouseWheel(float amt, bool controlHeld) {
+	// mouse wheel is used to determine camera distance (how the model is scaled in the perspective view)
 	cameraDistance += baseCameraDistance * -0.005f * amt * (controlHeld ? 0.1f : 1.0f);
 }
 
 void CreateProjected::NotifyMouseDrag(float x, float y, uint32_t button, bool controlHeld) {
 	const float p = glm::pi<float>();
 
+	// when control is held adjustments are much more fine tuned
 	float controlScale = controlHeld ? 0.01f : 1.0f;
 
 	if (button == 2) {
+		// right mouse click and up/down will rotate along the z axis
 		rotation.z += y * 0.01f * controlScale;
 		if (rotation.z > p * 2.0f)
 			rotation.z -= p * 2.0f;
@@ -228,6 +250,7 @@ void CreateProjected::NotifyMouseDrag(float x, float y, uint32_t button, bool co
 			rotation.z += p * 2.0f;
 		//fieldOfView += x * 0.01f * controlScale;
 	} else if (button == 1) {
+		// middle click will offset (math here uses the current view direction to determine up / down )
 		center.x += viewMatrix[0].x * x / 1000.0f * cameraDistance * controlScale;
 		center.y += viewMatrix[0].y * x / 1000.0f * cameraDistance * controlScale;
 		center.z += viewMatrix[0].z * x / 1000.0f * cameraDistance * controlScale;
@@ -235,6 +258,7 @@ void CreateProjected::NotifyMouseDrag(float x, float y, uint32_t button, bool co
 		center.y += viewMatrix[1].y * y / 1000.0f * cameraDistance * controlScale;
 		center.z += viewMatrix[1].z * y / 1000.0f * cameraDistance * controlScale;
 	} else if (button == 0) {
+		// left click will rotate about x and y (pitch and yaw respectively)
 		rotation.x += x * 0.01f * controlScale;
 		rotation.y -= y * 0.01f * controlScale;
 		if (rotation.x > p * 2.0f)
@@ -249,6 +273,8 @@ void CreateProjected::NotifyMouseDrag(float x, float y, uint32_t button, bool co
 }
 
 void CreateProjected::Save(const char* toFile) {
+	// a "projection file" is the texture and model file paths used for projection, 
+	// as well as the final view matrix (with the scale aspect correction from the background image applied)
 	std::fstream file(toFile, std::ofstream::out);
 
 	file << texName << "\n";
@@ -279,6 +305,7 @@ void CreateProjected::Save(const char* toFile) {
 }
 
 CreateProjected::~CreateProjected() {
+	// clean up
 	delete modelProgram;
 	GLCHECK();
 	delete modelPShader;

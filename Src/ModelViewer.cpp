@@ -2,6 +2,8 @@
 #include "SpecViz.h"
 #include "PlyModel.h"
 
+// Standard model viewer shows model fully opaque with lighting effects for comparison to projected mapped version
+
 class ModelViewer : public Viewer {
 public:
 	PixelShader* pShader;

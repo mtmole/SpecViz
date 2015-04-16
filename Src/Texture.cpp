@@ -2,6 +2,7 @@
 #include "SpecViz.h"
 #include <fstream>
 
+// get the internal format parameter needed for the given OpenGL format for glTexImage2D
 GLenum Texture::GetInternal(GLenum format) {
 	switch (format) {
 		case GL_LUMINANCE8:
@@ -12,6 +13,7 @@ GLenum Texture::GetInternal(GLenum format) {
 	return format;
 }
 
+// get the format parameter needed for the given OpenGL format for glTexImage2D
 GLenum Texture::GetFormat(GLenum format) {
 	switch (format) {
 		case GL_LUMINANCE8:
@@ -24,6 +26,7 @@ GLenum Texture::GetFormat(GLenum format) {
 	return 0;
 }
 
+// get the type parameter needed for the given OpenGL format for glTexImage2D
 GLenum Texture::GetDataType(GLenum format) {
 	switch (format) {
 		case GL_LUMINANCE8:
@@ -36,34 +39,42 @@ GLenum Texture::GetDataType(GLenum format) {
 	return 0;
 }
 
+// create a texture given the data and format
 Texture::Texture(void* data, uint32_t withWidth, uint32_t withHeight, GLenum withFormat) {
+	// set dimentions and format
 	width = withWidth;
 	height = withHeight;
 	format = withFormat;
 
+	// create and OpenGL ID and bind it
 	glGenTextures(1, &textureId);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	GLCHECK();
 		
+	// images default to nearest filter (no bilinear filtering by default)
 	glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	
+	// images should clamp (deprojection often causes wrapping that might otherwise go unseen)
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 	GLCHECK();
 
+	// send up the image data to OpenGL
 	glTexImage2D(GL_TEXTURE_2D, 0, GetInternal(format), width, height, 0, GetFormat(format), GetDataType(format), data);
 	GLCHECK();
 }
 
 void Texture::Bind(uint32_t samplerId) {
+	// set this texture's OpenGL ID to the sampler ID provided
 	glActiveTexture(GL_TEXTURE0 + samplerId);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 }
 
+// structure for representing simple image bit data (helper struct used when using FreeImage)
 struct ImageBits {
 	uint32_t width;
 	uint32_t height;
@@ -217,14 +228,17 @@ Texture* Texture::CreateFromFileCombined(const char* rgbPath, const char* alphaP
 }
 
 void Texture::SavePNG(const char* filename, uint32_t width, uint32_t height, uint8_t* colors, uint32_t destWidth, uint32_t destHeight) {
+	// create FreeImage BITMAP object from the given data (Which is assumed to be 24-bit RGB)
 	FIBITMAP* Image = FreeImage_ConvertFromRawBits(colors, width, height, 3*width, 24, 0xFF0000, 0x00FF00, 0x0000FF, false);
 
+	// scale the image if a dest size was indicated
 	if (destWidth != 0 && destHeight != 0) {
 		FIBITMAP* OldImage = Image;
 		Image = FreeImage_Rescale(Image, destWidth, destHeight, FILTER_BILINEAR);
 		FreeImage_Unload(OldImage);
 	}
 
+	// save as a png to the provided filename
 	FreeImage_Save(FIF_PNG, Image, filename, 0);
 	FreeImage_Unload(Image);
 }

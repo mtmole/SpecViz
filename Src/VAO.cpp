@@ -1,6 +1,7 @@
 
 #include "SpecViz.h"
 
+
 VAO::VAO(VertexBuffer* withVerts, IndexBuffer* withIndices) {
 	glGenVertexArrays(1, &id);
 	glBindVertexArray(id);
@@ -15,6 +16,12 @@ void VAO::Bind() {
 }
 
 void VAO::EnableArrays(int32_t count) {
+	// attribute order is always:
+	//   1. Position
+	//   2. UV's
+	//   3. color
+	//   4. Vertex normal
+
 	int32_t strideSize;
 	switch (count) {
 		case 1: strideSize = sizeof(float) * 3; break;
